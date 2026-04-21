@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>River Plate — Análisis Técnico 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --rojo: #CC0000;
+    --rojo-fuerte: #FF0000;
+    --blanco: #FFFFFF;
+    --fondo: #0A0A0A;
+    --superficie: #111111;
+    --borde: #1E1E1E;
+    --borde-claro: #2A2A2A;
+    --texto: #E8E8E8;
+    --texto-muted: #666;
+    --verde: #00CC6A;
+    --amarillo: #FFCC00;
+    --azul: #0099FF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Header */
+  .header {
+    background: var(--superficie);
+    border-bottom: 2px solid var(--rojo);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-circle {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--rojo);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 16px;
+    color: var(--rojo);
+    letter-spacing: 1px;
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 24px;
+    letter-spacing: 4px;
+    color: var(--blanco);
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--texto-muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: -4px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .season-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--rojo);
+    border: 1px solid var(--rojo);
+    padding: 4px 12px;
+    letter-spacing: 2px;
+  }
+
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--verde);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Main layout */
+  .main {
+    padding: 32px 40px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+    margin-right: 4px;
+  }
+
+  .filter-btn {
+    background: var(--superficie);
+    border: 1px solid var(--borde-claro);
+    color: var(--texto-muted);
+    padding: 8px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--rojo);
+    color: var(--blanco);
+  }
+
+  .filter-btn.active {
+    background: var(--rojo);
+    border-color: var(--rojo);
+    color: var(--blanco);
+  }
+
+  /* Section title */
+  .section-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 13px;
+    letter-spacing: 5px;
+    color: var(--texto-muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--borde-claro);
+  }
+
+  /* KPI strip */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 2px;
+    margin-bottom: 32px;
+    background: var(--borde);
+  }
+
+  .kpi-card {
+    background: var(--superficie);
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--borde-claro);
+    transition: background 0.2s;
+  }
+
+  .kpi-card:hover::before { background: var(--rojo); }
+
+  .kpi-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 42px;
+    line-height: 1;
+    color: var(--blanco);
+  }
+
+  .kpi-value.red { color: var(--rojo-fuerte); }
+  .kpi-value.green { color: var(--verde); }
+  .kpi-value.yellow { color: var(--amarillo); }
+
+  .kpi-suffix {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--texto-muted);
+    margin-left: 4px;
+  }
+
+  /* Grid layout */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .panel {
+    background: var(--superficie);
+    border: 1px solid var(--borde-claro);
+    padding: 24px;
+  }
+
+  .panel-title {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Player cards */
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2px;
+    background: var(--borde);
+    margin-bottom: 32px;
+  }
+
+  .player-card {
+    background: var(--superficie);
+    padding: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+    border-left: 3px solid transparent;
+  }
+
+  .player-card:hover { background: #161616; border-left-color: var(--rojo); }
+  .player-card.selected { background: #1A0000; border-left-color: var(--rojo-fuerte); }
+
+  .player-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 32px;
+    color: var(--rojo);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .player-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--blanco);
+    margin-bottom: 12px;
+  }
+
+  .player-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .pstat {
+    text-align: center;
+  }
+
+  .pstat-val {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px;
+    color: var(--blanco);
+    display: block;
+  }
+
+  .pstat-lbl {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--texto-muted);
+    text-transform: uppercase;
+  }
+
+  /* Progress bars */
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .stat-row-label {
+    font-size: 11px;
+    color: var(--texto-muted);
+    width: 100px;
+    flex-shrink: 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .stat-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--borde-claro);
+    position: relative;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    background: var(--rojo);
+    transition: width 0.5s ease;
+    position: relative;
+  }
+
+  .stat-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: -2px; top: -3px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--rojo-fuerte);
+  }
+
+  .stat-row-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--blanco);
+    width: 40px;
+    text-align: right;
+  }
+
+  /* Charts */
+  .chart-container {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Player detail view */
+  .detail-panel {
+    background: var(--superficie);
+    border: 1px solid var(--rojo);
+    padding: 28px;
+    margin-bottom: 32px;
+    display: none;
+  }
+
+  .detail-panel.visible { display: block; }
+
+  .detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--borde-claro);
+  }
+
+  .detail-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 80px;
+    color: var(--rojo);
+    line-height: 0.85;
+    opacity: 0.15;
+    position: absolute;
+    right: 28px;
+    top: 24px;
+  }
+
+  .detail-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 36px;
+    letter-spacing: 4px;
+    color: var(--blanco);
+    margin-bottom: 4px;
+  }
+
+  .detail-matches {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--texto-muted);
+    text-transform: uppercase;
+  }
+
+  .close-btn {
+    background: transparent;
+    border: 1px solid var(--borde-claro);
+    color: var(--texto-muted);
+    padding: 6px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 2px;
+    font-family: 'DM Mono', monospace;
+    transition: all 0.15s;
+  }
+
+  .close-btn:hover { border-color: var(--rojo); color: var(--blanco); }
+
+  .detail-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .dkpi {
+    background: var(--fondo);
+    padding: 14px;
+    border: 1px solid var(--borde-claro);
+    text-align: center;
+  }
+
+  .dkpi-val {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 28px;
+    color: var(--blanco);
+  }
+
+  .dkpi-val.red { color: var(--rojo-fuerte); }
+  .dkpi-val.green { color: var(--verde); }
+  .dkpi-val.yellow { color: var(--amarillo); }
+
+  .dkpi-lbl {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--texto-muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .matches-compare {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .match-col {
+    background: var(--fondo);
+    border: 1px solid var(--borde-claro);
+    padding: 16px;
+  }
+
+  .match-col-title {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .win-badge {
+    background: var(--verde);
+    color: #000;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    letter-spacing: 1px;
+  }
+
+  .match-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--borde);
+    font-size: 12px;
+  }
+
+  .match-stat:last-child { border-bottom: none; }
+
+  .match-stat-label { color: var(--texto-muted); }
+  .match-stat-val { font-family: 'DM Mono', monospace; color: var(--blanco); font-weight: 600; }
+
+  /* Ranking table */
+  .rank-table { width: 100%; border-collapse: collapse; }
+  .rank-table th {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--borde-claro);
+  }
+
+  .rank-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--borde);
+    font-size: 13px;
+  }
+
+  .rank-table tr:last-child td { border-bottom: none; }
+
+  .rank-table tr:hover td { background: rgba(204,0,0,0.05); }
+
+  .rank-pos {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 16px;
+    color: var(--texto-muted);
+    width: 30px;
+  }
+
+  .rank-pos.top { color: var(--amarillo); }
+
+  .rank-name { font-weight: 600; color: var(--blanco); }
+  .rank-num { color: var(--texto-muted); font-size: 11px; margin-left: 6px; }
+
+  .rank-val {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 18px;
+    color: var(--rojo-fuerte);
+  }
+
+  .rank-bar-cell { width: 120px; }
+
+  .rank-mini-bar {
+    height: 3px;
+    background: var(--borde-claro);
+  }
+
+  .rank-mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rojo), var(--rojo-fuerte));
+  }
+
+  /* Tab selector */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--borde-claro);
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--texto-muted);
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn:hover { color: var(--blanco); }
+  .tab-btn.active { color: var(--rojo-fuerte); border-bottom-color: var(--rojo-fuerte); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Radar wrapper */
+  .radar-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .main { padding: 20px; }
+    .header { padding: 0 20px; }
+    .grid-2, .grid-3, .radar-wrap { grid-template-columns: 1fr; }
+    .matches-compare { grid-template-columns: 1fr; }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .players-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo-area">
+    <div class="logo-circle">CAR<br>P</div>
+    <div>
+      <div class="logo-text">River Plate</div>
+      <div class="logo-sub">Cuerpo Técnico — Análisis 2026</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-dot"></div>
+    <div class="season-badge">TEMPORADA 2026</div>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Filtro de partido -->
+  <div class="filter-bar">
+    <span class="filter-label">Partido</span>
+    <button class="filter-btn active" onclick="setPartido('TOTAL')">Todos los partidos</button>
+    <button class="filter-btn" onclick="setPartido('Huracan')">vs Huracán (G)</button>
+    <button class="filter-btn" onclick="setPartido('Independiente')">vs Independiente (G)</button>
+    <button class="filter-btn" onclick="setPartido('Union')">vs Unión (G)</button>
+  </div>
+
+  <!-- KPIs globales del partido -->
+  <div class="section-title">Resumen del equipo</div>
+  <div class="kpi-strip" id="kpi-strip"></div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="setTab('jugadoras')">Jugadoras</button>
+    <button class="tab-btn" onclick="setTab('rankings')">Rankings</button>
+    <button class="tab-btn" onclick="setTab('analisis')">Análisis Comparativo</button>
+  </div>
+
+  <!-- Tab: Jugadoras -->
+  <div class="tab-content active" id="tab-jugadoras">
+    <div class="section-title">Seleccioná una jugadora para ver su detalle</div>
+    <div class="players-grid" id="players-grid"></div>
+
+    <!-- Detail panel -->
+    <div class="detail-panel" id="detail-panel">
+      <div class="detail-num" id="d-num"></div>
+      <div class="detail-header">
+        <div>
+          <div class="detail-name" id="d-name"></div>
+          <div class="detail-matches" id="d-matches"></div>
+        </div>
+        <button class="close-btn" onclick="closeDetail()">✕ CERRAR</button>
+      </div>
+      <div class="detail-kpis" id="d-kpis"></div>
+      <div class="section-title">Comparativa por partido</div>
+      <div class="matches-compare" id="d-matches-compare"></div>
+      <div class="radar-wrap">
+        <div class="panel">
+          <div class="panel-title">Perfil técnico</div>
+          <div class="chart-container" style="height:260px;">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Acciones por partido</div>
+          <div class="chart-container" style="height:260px;">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Rankings -->
+  <div class="tab-content" id="tab-rankings">
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Top — Pases efectivos <span id="rnk-label" style="color:var(--rojo);font-size:10px;"></span></div>
+        <table class="rank-table" id="rank-pases"></table>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Top — Recuperaciones</div>
+        <table class="rank-table" id="rank-recup"></table>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Top — Intercepciones</div>
+        <table class="rank-table" id="rank-interc"></table>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Top — Duelos ganados %</div>
+        <table class="rank-table" id="rank-duelos"></table>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Top — Goles</div>
+        <table class="rank-table" id="rank-goles"></table>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Top — Pérdidas (menor = mejor)</div>
+        <table class="rank-table" id="rank-perdidas"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Análisis comparativo -->
+  <div class="tab-content" id="tab-analisis">
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-title">Distribución de acciones por tipo — Equipo</div>
+      <div class="chart-container" style="height:300px;">
+        <canvas id="teamChart"></canvas>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">% Efectividad pases por jugadora</div>
+        <div id="eff-bars"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Volumen de acciones por jugadora</div>
+        <div id="vol-bars"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ===== DATA =====
+const DATA = {"8-Magali Natta": {"Huracan": {"total": 74, "remProp": 1, "goles": 1, "recup": 3, "interc": 0, "perdidas": 10, "pases": 47, "pase_eff": 87, "asist": 0, "duelos": 3, "centros": 1, "rem_arco": 1, "presiones": 8, "duel_eff": 67, "despeje": 0}, "Independiente": {"total": 53, "remProp": 2, "goles": 0, "recup": 7, "interc": 0, "perdidas": 9, "pases": 23, "pase_eff": 78, "asist": 1, "duelos": 4, "centros": 0, "rem_arco": 0, "presiones": 6, "duel_eff": 50, "despeje": 0}, "Union": {"total": 63, "remProp": 2, "goles": 0, "recup": 6, "interc": 1, "perdidas": 10, "pases": 29, "pase_eff": 90, "asist": 1, "duelos": 5, "centros": 0, "rem_arco": 2, "presiones": 1, "duel_eff": 40, "despeje": 0}, "TOTAL": {"total": 190, "remProp": 5, "goles": 1, "recup": 16, "interc": 1, "perdidas": 29, "pases": 99, "pase_eff": 86, "asist": 2, "duelos": 12, "centros": 1, "rem_arco": 3, "presiones": 15, "duel_eff": 50, "despeje": 0}}, "21-Camila Duarte": {"Huracan": {"total": 97, "remProp": 1, "goles": 1, "recup": 6, "interc": 6, "perdidas": 5, "pases": 59, "pase_eff": 92, "asist": 0, "duelos": 8, "centros": 0, "rem_arco": 1, "presiones": 3, "duel_eff": 38, "despeje": 4}, "Independiente": {"total": 67, "remProp": 1, "goles": 0, "recup": 4, "interc": 2, "perdidas": 9, "pases": 36, "pase_eff": 78, "asist": 0, "duelos": 5, "centros": 0, "rem_arco": 1, "presiones": 1, "duel_eff": 60, "despeje": 4}, "Union": {"total": 77, "remProp": 0, "goles": 0, "recup": 7, "interc": 5, "perdidas": 7, "pases": 44, "pase_eff": 77, "asist": 0, "duelos": 3, "centros": 1, "rem_arco": 0, "presiones": 0, "duel_eff": 67, "despeje": 1}, "TOTAL": {"total": 241, "remProp": 2, "goles": 1, "recup": 17, "interc": 13, "perdidas": 21, "pases": 139, "pase_eff": 83, "asist": 0, "duelos": 16, "centros": 1, "rem_arco": 2, "presiones": 4, "duel_eff": 50, "despeje": 9}}, "22-Mercedes Diz": {"Huracan": {"total": 40, "remProp": 1, "goles": 0, "recup": 2, "interc": 1, "perdidas": 9, "pases": 11, "pase_eff": 73, "asist": 0, "duelos": 8, "centros": 0, "rem_arco": 1, "presiones": 6, "duel_eff": 12, "despeje": 1}, "Independiente": {"total": 50, "remProp": 4, "goles": 1, "recup": 3, "interc": 0, "perdidas": 7, "pases": 19, "pase_eff": 89, "asist": 0, "duelos": 8, "centros": 2, "rem_arco": 2, "presiones": 4, "duel_eff": 38, "despeje": 0}, "Union": {"total": 42, "remProp": 1, "goles": 0, "recup": 3, "interc": 0, "perdidas": 8, "pases": 19, "pase_eff": 79, "asist": 0, "duelos": 9, "centros": 0, "rem_arco": 0, "presiones": 1, "duel_eff": 56, "despeje": 0}, "TOTAL": {"total": 132, "remProp": 6, "goles": 1, "recup": 8, "interc": 1, "perdidas": 24, "pases": 49, "pase_eff": 82, "asist": 0, "duelos": 25, "centros": 2, "rem_arco": 3, "presiones": 11, "duel_eff": 36, "despeje": 1}}, "20-Francisca Altgelt": {"Huracan": {"total": 70, "remProp": 4, "goles": 1, "recup": 2, "interc": 2, "perdidas": 10, "pases": 28, "pase_eff": 82, "asist": 0, "duelos": 8, "centros": 2, "rem_arco": 3, "presiones": 7, "duel_eff": 25, "despeje": 0}, "Independiente": {"total": 69, "remProp": 1, "goles": 0, "recup": 4, "interc": 1, "perdidas": 10, "pases": 31, "pase_eff": 71, "asist": 1, "duelos": 8, "centros": 3, "rem_arco": 0, "presiones": 3, "duel_eff": 25, "despeje": 0}, "Union": {"total": 63, "remProp": 2, "goles": 0, "recup": 4, "interc": 3, "perdidas": 8, "pases": 28, "pase_eff": 71, "asist": 2, "duelos": 6, "centros": 3, "rem_arco": 2, "presiones": 3, "duel_eff": 0, "despeje": 0}, "TOTAL": {"total": 202, "remProp": 7, "goles": 1, "recup": 10, "interc": 6, "perdidas": 28, "pases": 87, "pase_eff": 75, "asist": 3, "duelos": 22, "centros": 8, "rem_arco": 5, "presiones": 13, "duel_eff": 18, "despeje": 0}}, "32-Julieta Romero": {"Huracan": {"total": 91, "remProp": 1, "goles": 0, "recup": 7, "interc": 5, "perdidas": 5, "pases": 56, "pase_eff": 88, "asist": 0, "duelos": 4, "centros": 1, "rem_arco": 1, "presiones": 8, "duel_eff": 50, "despeje": 0}, "Independiente": {"total": 81, "remProp": 3, "goles": 0, "recup": 6, "interc": 10, "perdidas": 7, "pases": 32, "pase_eff": 84, "asist": 0, "duelos": 9, "centros": 1, "rem_arco": 0, "presiones": 5, "duel_eff": 67, "despeje": 0}, "Union": {"total": 98, "remProp": 4, "goles": 2, "recup": 6, "interc": 5, "perdidas": 12, "pases": 45, "pase_eff": 80, "asist": 0, "duelos": 5, "centros": 3, "rem_arco": 3, "presiones": 3, "duel_eff": 40, "despeje": 0}, "TOTAL": {"total": 270, "remProp": 8, "goles": 2, "recup": 19, "interc": 20, "perdidas": 24, "pases": 133, "pase_eff": 84, "asist": 0, "duelos": 18, "centros": 5, "rem_arco": 4, "presiones": 16, "duel_eff": 56, "despeje": 0}}, "7-Kimberly Campos": {"Huracan": {"total": 11, "remProp": 1, "goles": 0, "recup": 0, "interc": 1, "perdidas": 2, "pases": 4, "pase_eff": 75, "asist": 0, "duelos": 1, "centros": 0, "rem_arco": 0, "presiones": 2, "duel_eff": 100, "despeje": 0}, "Independiente": {"total": 8, "remProp": 1, "goles": 1, "recup": 0, "interc": 0, "perdidas": 0, "pases": 3, "pase_eff": 100, "asist": 0, "duelos": 1, "centros": 0, "rem_arco": 1, "presiones": 1, "duel_eff": 0, "despeje": 0}, "Union": {"total": 12, "remProp": 1, "goles": 1, "recup": 0, "interc": 0, "perdidas": 1, "pases": 8, "pase_eff": 88, "asist": 0, "duelos": 1, "centros": 0, "rem_arco": 1, "presiones": 0, "duel_eff": 100, "despeje": 0}, "TOTAL": {"total": 31, "remProp": 3, "goles": 2, "recup": 0, "interc": 1, "perdidas": 3, "pases": 15, "pase_eff": 87, "asist": 0, "duelos": 3, "centros": 0, "rem_arco": 2, "presiones": 3, "duel_eff": 67, "despeje": 0}}, "9-Mercedes Pereyra": {"Huracan": {"total": 16, "remProp": 1, "goles": 0, "recup": 2, "interc": 1, "perdidas": 1, "pases": 6, "pase_eff": 83, "asist": 0, "duelos": 1, "centros": 1, "rem_arco": 0, "presiones": 1, "duel_eff": 0, "despeje": 0}, "Independiente": {"total": 0, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 0, "pase_eff": 0, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "Union": {"total": 29, "remProp": 1, "goles": 1, "recup": 2, "interc": 2, "perdidas": 4, "pases": 13, "pase_eff": 92, "asist": 0, "duelos": 3, "centros": 1, "rem_arco": 1, "presiones": 0, "duel_eff": 0, "despeje": 0}, "TOTAL": {"total": 45, "remProp": 2, "goles": 1, "recup": 4, "interc": 3, "perdidas": 5, "pases": 19, "pase_eff": 89, "asist": 0, "duelos": 4, "centros": 2, "rem_arco": 1, "presiones": 1, "duel_eff": 0, "despeje": 0}}, "27-Juana Cangaro": {"Huracan": {"total": 88, "remProp": 0, "goles": 0, "recup": 11, "interc": 5, "perdidas": 10, "pases": 38, "pase_eff": 74, "asist": 0, "duelos": 5, "centros": 2, "rem_arco": 0, "presiones": 6, "duel_eff": 20, "despeje": 0}, "Independiente": {"total": 58, "remProp": 0, "goles": 0, "recup": 6, "interc": 6, "perdidas": 6, "pases": 23, "pase_eff": 78, "asist": 0, "duelos": 5, "centros": 2, "rem_arco": 0, "presiones": 0, "duel_eff": 40, "despeje": 0}, "Union": {"total": 83, "remProp": 2, "goles": 0, "recup": 10, "interc": 8, "perdidas": 10, "pases": 27, "pase_eff": 63, "asist": 0, "duelos": 9, "centros": 1, "rem_arco": 1, "presiones": 4, "duel_eff": 67, "despeje": 0}, "TOTAL": {"total": 229, "remProp": 2, "goles": 0, "recup": 27, "interc": 19, "perdidas": 26, "pases": 88, "pase_eff": 72, "asist": 0, "duelos": 19, "centros": 5, "rem_arco": 1, "presiones": 10, "duel_eff": 47, "despeje": 0}}, "33-Carolina Ceniza": {"Huracan": {"total": 60, "remProp": 0, "goles": 0, "recup": 3, "interc": 5, "perdidas": 9, "pases": 22, "pase_eff": 77, "asist": 0, "duelos": 3, "centros": 3, "rem_arco": 0, "presiones": 3, "duel_eff": 67, "despeje": 1}, "Independiente": {"total": 102, "remProp": 0, "goles": 0, "recup": 10, "interc": 19, "perdidas": 6, "pases": 36, "pase_eff": 78, "asist": 0, "duelos": 6, "centros": 2, "rem_arco": 0, "presiones": 3, "duel_eff": 67, "despeje": 3}, "Union": {"total": 0, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 0, "pase_eff": 0, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "TOTAL": {"total": 162, "remProp": 0, "goles": 0, "recup": 13, "interc": 24, "perdidas": 15, "pases": 58, "pase_eff": 78, "asist": 0, "duelos": 9, "centros": 5, "rem_arco": 0, "presiones": 6, "duel_eff": 67, "despeje": 4}}, "31-Sofia Quiroga": {"Huracan": {"total": 26, "remProp": 0, "goles": 0, "recup": 1, "interc": 1, "perdidas": 2, "pases": 13, "pase_eff": 92, "asist": 0, "duelos": 1, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 100, "despeje": 0}, "Independiente": {"total": 11, "remProp": 0, "goles": 0, "recup": 1, "interc": 1, "perdidas": 2, "pases": 3, "pase_eff": 33, "asist": 0, "duelos": 2, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 50, "despeje": 0}, "Union": {"total": 82, "remProp": 0, "goles": 0, "recup": 9, "interc": 4, "perdidas": 8, "pases": 30, "pase_eff": 83, "asist": 0, "duelos": 10, "centros": 2, "rem_arco": 0, "presiones": 0, "duel_eff": 90, "despeje": 0}, "TOTAL": {"total": 119, "remProp": 0, "goles": 0, "recup": 11, "interc": 6, "perdidas": 12, "pases": 46, "pase_eff": 83, "asist": 0, "duelos": 13, "centros": 2, "rem_arco": 0, "presiones": 0, "duel_eff": 85, "despeje": 0}}, "28-Agustina Maldonado": {"Huracan": {"total": 88, "remProp": 0, "goles": 0, "recup": 13, "interc": 6, "perdidas": 5, "pases": 50, "pase_eff": 98, "asist": 0, "duelos": 4, "centros": 0, "rem_arco": 0, "presiones": 9, "duel_eff": 50, "despeje": 1}, "Independiente": {"total": 67, "remProp": 0, "goles": 0, "recup": 6, "interc": 12, "perdidas": 4, "pases": 34, "pase_eff": 88, "asist": 0, "duelos": 1, "centros": 0, "rem_arco": 0, "presiones": 9, "duel_eff": 100, "despeje": 0}, "Union": {"total": 69, "remProp": 0, "goles": 0, "recup": 12, "interc": 11, "perdidas": 3, "pases": 29, "pase_eff": 90, "asist": 0, "duelos": 7, "centros": 0, "rem_arco": 0, "presiones": 3, "duel_eff": 86, "despeje": 1}, "TOTAL": {"total": 224, "remProp": 0, "goles": 0, "recup": 31, "interc": 29, "perdidas": 12, "pases": 113, "pase_eff": 93, "asist": 0, "duelos": 12, "centros": 0, "rem_arco": 0, "presiones": 21, "duel_eff": 75, "despeje": 2}}, "16-Paloma Fagiano": {"Huracan": {"total": 95, "remProp": 0, "goles": 0, "recup": 9, "interc": 2, "perdidas": 9, "pases": 48, "pase_eff": 88, "asist": 1, "duelos": 9, "centros": 0, "rem_arco": 0, "presiones": 11, "duel_eff": 56, "despeje": 0}, "Independiente": {"total": 65, "remProp": 1, "goles": 0, "recup": 3, "interc": 3, "perdidas": 8, "pases": 37, "pase_eff": 89, "asist": 0, "duelos": 4, "centros": 1, "rem_arco": 0, "presiones": 4, "duel_eff": 25, "despeje": 1}, "Union": {"total": 93, "remProp": 5, "goles": 2, "recup": 12, "interc": 10, "perdidas": 5, "pases": 38, "pase_eff": 82, "asist": 0, "duelos": 12, "centros": 1, "rem_arco": 4, "presiones": 6, "duel_eff": 50, "despeje": 0}, "TOTAL": {"total": 253, "remProp": 6, "goles": 2, "recup": 24, "interc": 15, "perdidas": 22, "pases": 123, "pase_eff": 86, "asist": 1, "duelos": 25, "centros": 2, "rem_arco": 4, "presiones": 21, "duel_eff": 48, "despeje": 1}}, "5-Andrea Lopez": {"Huracan": {"total": 103, "remProp": 0, "goles": 0, "recup": 8, "interc": 6, "perdidas": 6, "pases": 69, "pase_eff": 90, "asist": 1, "duelos": 6, "centros": 0, "rem_arco": 0, "presiones": 2, "duel_eff": 83, "despeje": 2}, "Independiente": {"total": 64, "remProp": 0, "goles": 0, "recup": 9, "interc": 8, "perdidas": 2, "pases": 34, "pase_eff": 79, "asist": 0, "duelos": 4, "centros": 0, "rem_arco": 0, "presiones": 1, "duel_eff": 25, "despeje": 1}, "Union": {"total": 61, "remProp": 0, "goles": 0, "recup": 3, "interc": 9, "perdidas": 6, "pases": 33, "pase_eff": 91, "asist": 0, "duelos": 3, "centros": 0, "rem_arco": 0, "presiones": 2, "duel_eff": 67, "despeje": 1}, "TOTAL": {"total": 228, "remProp": 0, "goles": 0, "recup": 20, "interc": 23, "perdidas": 14, "pases": 136, "pase_eff": 88, "asist": 1, "duelos": 13, "centros": 0, "rem_arco": 0, "presiones": 5, "duel_eff": 62, "despeje": 4}}, "17-Renata Barletta": {"Huracan": {"total": 5, "remProp": 0, "goles": 0, "recup": 1, "interc": 1, "perdidas": 1, "pases": 1, "pase_eff": 100, "asist": 0, "duelos": 1, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "Independiente": {"total": 0, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 0, "pase_eff": 0, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "Union": {"total": 0, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 0, "pase_eff": 0, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "TOTAL": {"total": 5, "remProp": 0, "goles": 0, "recup": 1, "interc": 1, "perdidas": 1, "pases": 1, "pase_eff": 100, "asist": 0, "duelos": 1, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}}, "1-Lara Esponda": {"Huracan": {"total": 39, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 1, "pases": 22, "pase_eff": 100, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "Independiente": {"total": 38, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 16, "pase_eff": 100, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 1}, "Union": {"total": 31, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 1, "pases": 19, "pase_eff": 89, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "TOTAL": {"total": 108, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 2, "pases": 57, "pase_eff": 96, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 1}}, "24-Nikol Laurnaga": {"Huracan": {"total": 0, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 0, "pase_eff": 0, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "Independiente": {"total": 13, "remProp": 0, "goles": 0, "recup": 2, "interc": 0, "perdidas": 0, "pases": 5, "pase_eff": 80, "asist": 0, "duelos": 2, "centros": 0, "rem_arco": 0, "presiones": 3, "duel_eff": 50, "despeje": 0}, "Union": {"total": 7, "remProp": 0, "goles": 0, "recup": 1, "interc": 0, "perdidas": 0, "pases": 5, "pase_eff": 80, "asist": 0, "duelos": 1, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 100, "despeje": 0}, "TOTAL": {"total": 20, "remProp": 0, "goles": 0, "recup": 3, "interc": 0, "perdidas": 0, "pases": 10, "pase_eff": 80, "asist": 0, "duelos": 3, "centros": 0, "rem_arco": 0, "presiones": 3, "duel_eff": 67, "despeje": 0}}, "11-Veronica Matarrita": {"Huracan": {"total": 0, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 0, "pase_eff": 0, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "Independiente": {"total": 0, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 0, "pase_eff": 0, "asist": 0, "duelos": 0, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 0, "despeje": 0}, "Union": {"total": 5, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 3, "pase_eff": 100, "asist": 1, "duelos": 1, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 100, "despeje": 0}, "TOTAL": {"total": 5, "remProp": 0, "goles": 0, "recup": 0, "interc": 0, "perdidas": 0, "pases": 3, "pase_eff": 100, "asist": 1, "duelos": 1, "centros": 0, "rem_arco": 0, "presiones": 0, "duel_eff": 100, "despeje": 0}}};
+
+const RIVALES = ['Huracan', 'Independiente', 'Union'];
+let currentPartido = 'TOTAL';
+let selectedPlayer = null;
+let radarChartInst = null;
+let barChartInst = null;
+let teamChartInst = null;
+
+function parseName(key) {
+  const parts = key.split('-');
+  return { num: parts[0], name: parts.slice(1).join('-').trim() };
+}
+
+function getTeamTotals(partido) {
+  const keys = ['goles', 'remProp', 'recup', 'interc', 'perdidas', 'pases', 'asist', 'duelos', 'presiones'];
+  const totals = {};
+  keys.forEach(k => totals[k] = 0);
+  let totalPases = 0, totalPasesEf = 0;
+
+  Object.entries(DATA).forEach(([jug, partidos]) => {
+    const d = partidos[partido];
+    if (!d || d.total === 0) return;
+    keys.forEach(k => totals[k] += d[k] || 0);
+    totalPases += d.pases || 0;
+    totalPasesEf += Math.round((d.pases || 0) * (d.pase_eff || 0) / 100);
+  });
+
+  totals.pase_eff_global = totalPases > 0 ? Math.round(totalPasesEf / totalPases * 100) : 0;
+  return totals;
+}
+
+function renderKPIs() {
+  const t = getTeamTotals(currentPartido);
+  const label = currentPartido === 'TOTAL' ? '3 partidos' : `vs ${currentPartido}`;
+  const kpis = [
+    { label: 'Goles', val: t.goles, cls: 'green' },
+    { label: 'Remates', val: t.remProp, cls: '' },
+    { label: 'Pases', val: t.pases, cls: '' },
+    { label: 'Ef. pase', val: t.pase_eff_global + '%', cls: t.pase_eff_global >= 80 ? 'green' : 'yellow' },
+    { label: 'Recuperac.', val: t.recup, cls: 'green' },
+    { label: 'Interceptac.', val: t.interc, cls: 'green' },
+    { label: 'Pérdidas', val: t.perdidas, cls: 'red' },
+    { label: 'Duelos', val: t.duelos, cls: '' },
+    { label: 'Asistencias', val: t.asist, cls: 'yellow' },
+    { label: 'Presiones', val: t.presiones, cls: '' },
+  ];
+
+  document.getElementById('kpi-strip').innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value ${k.cls}">${k.val}</div>
+    </div>
+  `).join('');
+}
+
+function renderPlayers() {
+  const jugadoras = Object.entries(DATA).filter(([k, v]) => {
+    const d = v[currentPartido];
+    return d && d.total > 0;
+  });
+
+  jugadoras.sort((a, b) => (b[1][currentPartido]?.total || 0) - (a[1][currentPartido]?.total || 0));
+
+  document.getElementById('players-grid').innerHTML = jugadoras.map(([key, partidos]) => {
+    const d = partidos[currentPartido];
+    const { num, name } = parseName(key);
+    const isSelected = selectedPlayer === key;
+    return `
+      <div class="player-card ${isSelected ? 'selected' : ''}" onclick="selectPlayer('${key}')">
+        <div class="player-num">${num}</div>
+        <div class="player-name">${name}</div>
+        <div class="player-stats">
+          <div class="pstat">
+            <span class="pstat-val">${d.pases}</span>
+            <span class="pstat-lbl">Pases</span>
+          </div>
+          <div class="pstat">
+            <span class="pstat-val" style="color:var(--verde)">${d.recup + d.interc}</span>
+            <span class="pstat-lbl">Recup+Int</span>
+          </div>
+          <div class="pstat">
+            <span class="pstat-val" style="color:${d.pase_eff >= 85 ? 'var(--verde)' : d.pase_eff >= 70 ? 'var(--amarillo)' : 'var(--rojo-fuerte)'}">${d.pase_eff}%</span>
+            <span class="pstat-lbl">Ef.Pase</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectPlayer(key) {
+  selectedPlayer = key;
+  renderPlayers();
+  renderDetail(key);
+}
+
+function renderDetail(key) {
+  const { num, name } = parseName(key);
+  const partidos = DATA[key];
+  const totalD = partidos['TOTAL'];
+
+  document.getElementById('d-num').textContent = num;
+  document.getElementById('d-name').textContent = name;
+
+  const activePartidos = RIVALES.filter(r => partidos[r] && partidos[r].total > 0);
+  document.getElementById('d-matches').textContent = `${activePartidos.length} partido(s) jugado(s)`;
+
+  // KPIs
+  const dkpis = [
+    { label: 'Acciones', val: totalD.total, cls: '' },
+    { label: 'Goles', val: totalD.goles, cls: 'green' },
+    { label: 'Remates', val: totalD.remProp, cls: '' },
+    { label: 'Al arco', val: totalD.rem_arco, cls: '' },
+    { label: 'Pases', val: totalD.pases, cls: '' },
+    { label: 'Ef.Pase', val: totalD.pase_eff + '%', cls: totalD.pase_eff >= 85 ? 'green' : 'yellow' },
+    { label: 'Recuperac.', val: totalD.recup, cls: 'green' },
+    { label: 'Interceptac.', val: totalD.interc, cls: 'green' },
+    { label: 'Duelos', val: totalD.duelos, cls: '' },
+    { label: 'Ef.Duelo', val: totalD.duel_eff + '%', cls: totalD.duel_eff >= 60 ? 'green' : 'yellow' },
+    { label: 'Pérdidas', val: totalD.perdidas, cls: 'red' },
+    { label: 'Asistencias', val: totalD.asist, cls: 'yellow' },
+    { label: 'Centros', val: totalD.centros, cls: '' },
+    { label: 'Presiones', val: totalD.presiones, cls: '' },
+  ];
+
+  document.getElementById('d-kpis').innerHTML = dkpis.map(k => `
+    <div class="dkpi">
+      <div class="dkpi-val ${k.cls}">${k.val}</div>
+      <div class="dkpi-lbl">${k.label}</div>
+    </div>
+  `).join('');
+
+  // Comparativa por partido
+  const rivals = { 'Huracan': 'Huracán', 'Independiente': 'Independiente', 'Union': 'Unión' };
+  document.getElementById('d-matches-compare').innerHTML = Object.entries(rivals).map(([r, label]) => {
+    const d = partidos[r];
+    if (!d || d.total === 0) return `
+      <div class="match-col" style="opacity:0.4">
+        <div class="match-col-title">${label} <span style="color:var(--texto-muted);font-size:8px">NO JUGÓ</span></div>
+      </div>`;
+    return `
+      <div class="match-col">
+        <div class="match-col-title">${label} <span class="win-badge">G</span></div>
+        <div class="match-stat"><span class="match-stat-label">Acciones</span><span class="match-stat-val">${d.total}</span></div>
+        <div class="match-stat"><span class="match-stat-label">Pases</span><span class="match-stat-val">${d.pases} <span style="color:var(--texto-muted);font-size:10px">(${d.pase_eff}%)</span></span></div>
+        <div class="match-stat"><span class="match-stat-label">Recuperac.</span><span class="match-stat-val">${d.recup}</span></div>
+        <div class="match-stat"><span class="match-stat-label">Interceptac.</span><span class="match-stat-val">${d.interc}</span></div>
+        <div class="match-stat"><span class="match-stat-label">Pérdidas</span><span class="match-stat-val" style="color:${d.perdidas > 8 ? 'var(--rojo-fuerte)' : 'var(--blanco)'}">${d.perdidas}</span></div>
+        <div class="match-stat"><span class="match-stat-label">Goles</span><span class="match-stat-val" style="color:${d.goles > 0 ? 'var(--verde)' : 'var(--blanco)'}">${d.goles}</span></div>
+        <div class="match-stat"><span class="match-stat-label">Duelos</span><span class="match-stat-val">${d.duelos} <span style="color:var(--texto-muted);font-size:10px">(${d.duel_eff}%)</span></span></div>
+      </div>`;
+  }).join('');
+
+  // Charts
+  renderRadar(key);
+  renderBarChart(key);
+
+  const panel = document.getElementById('detail-panel');
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderRadar(key) {
+  const d = DATA[key]['TOTAL'];
+  if (radarChartInst) radarChartInst.destroy();
+
+  // Normalize to 100 scale
+  const maxes = { pases: 150, recup: 35, interc: 30, duelos: 30, presiones: 25, pase_eff: 100 };
+  const vals = [
+    Math.min(100, Math.round(d.pases / maxes.pases * 100)),
+    d.pase_eff,
+    Math.min(100, Math.round(d.recup / maxes.recup * 100)),
+    Math.min(100, Math.round(d.interc / maxes.interc * 100)),
+    Math.min(100, Math.round(d.duelos / maxes.duelos * 100)),
+    Math.min(100, Math.round(d.presiones / maxes.presiones * 100)),
+  ];
+
+  radarChartInst = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: ['Pases', 'Ef.Pase', 'Recuperac.', 'Interceptac.', 'Duelos', 'Presiones'],
+      datasets: [{
+        data: vals,
+        backgroundColor: 'rgba(204,0,0,0.2)',
+        borderColor: '#CC0000',
+        pointBackgroundColor: '#FF0000',
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          min: 0, max: 100,
+          backgroundColor: 'transparent',
+          grid: { color: '#2A2A2A' },
+          angleLines: { color: '#2A2A2A' },
+          pointLabels: { color: '#888', font: { size: 11, family: 'DM Sans' } },
+          ticks: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderBarChart(key) {
+  const partidos = DATA[key];
+  if (barChartInst) barChartInst.destroy();
+
+  const labels = ['Huracán', 'Independiente', 'Unión'];
+  const ks = ['Huracan', 'Independiente', 'Union'];
+
+  barChartInst = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Pases', data: ks.map(k => partidos[k]?.pases || 0), backgroundColor: 'rgba(0, 153, 255, 0.7)' },
+        { label: 'Recup.', data: ks.map(k => partidos[k]?.recup || 0), backgroundColor: 'rgba(0, 204, 106, 0.7)' },
+        { label: 'Pérdidas', data: ks.map(k => partidos[k]?.perdidas || 0), backgroundColor: 'rgba(204, 0, 0, 0.7)' },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#888', font: { size: 10 } } }
+      },
+      scales: {
+        x: { ticks: { color: '#888' }, grid: { color: '#1E1E1E' } },
+        y: { ticks: { color: '#888' }, grid: { color: '#1E1E1E' } }
+      }
+    }
+  });
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('visible');
+  selectedPlayer = null;
+  renderPlayers();
+}
+
+function setPartido(p) {
+  currentPartido = p;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(p === 'TOTAL' ? 'Todos' : p));
+  });
+  renderKPIs();
+  renderPlayers();
+  if (selectedPlayer) renderDetail(selectedPlayer);
+  renderRankings();
+  renderAnalisis();
+}
+
+function setTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(tab.substring(0, 4)));
+  });
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.remove('active');
+  });
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  if (tab === 'analisis') renderAnalisis();
+}
+
+function renderRankingTable(tableId, key, sorted, maxVal, label, reverse = false) {
+  const table = document.getElementById(tableId);
+  const top = sorted.slice(0, 8);
+  table.innerHTML = `
+    <tr>
+      <th>#</th><th>Jugadora</th><th>${label}</th><th class="rank-bar-cell"></th>
+    </tr>
+    ${top.map(([name, val], i) => {
+      const { num, name: nm } = parseName(name);
+      const pct = maxVal > 0 ? Math.round(val / maxVal * 100) : 0;
+      const barColor = i === 0 ? 'var(--amarillo)' : 'var(--rojo)';
+      return `
+        <tr>
+          <td class="rank-pos ${i < 3 ? 'top' : ''}">${i + 1}</td>
+          <td class="rank-name">${nm}<span class="rank-num">#${num}</span></td>
+          <td class="rank-val" style="${reverse && i > 4 ? 'color:var(--rojo-fuerte)' : ''}">${val}${key === 'pase_eff' || key === 'duel_eff' ? '%' : ''}</td>
+          <td class="rank-bar-cell"><div class="rank-mini-bar"><div class="rank-mini-fill" style="width:${pct}%;background:${barColor}"></div></div></td>
+        </tr>`;
+    }).join('')}
+  `;
+}
+
+function renderRankings() {
+  const partido = currentPartido;
+  const players = Object.entries(DATA).filter(([k, v]) => v[partido] && v[partido].total > 0);
+
+  const sortBy = (key, asc = false) => {
+    const sorted = [...players].sort((a, b) => asc
+      ? (a[1][partido][key] || 0) - (b[1][partido][key] || 0)
+      : (b[1][partido][key] || 0) - (a[1][partido][key] || 0));
+    return sorted.map(([name, v]) => [name, v[partido][key] || 0]);
+  };
+
+  const pases = sortBy('pase_eff');
+  const recup = sortBy('recup');
+  const interc = sortBy('interc');
+  const duelos = sortBy('duel_eff');
+  const goles = sortBy('goles');
+  const perdidas = sortBy('perdidas', true); // ascending for losses
+
+  const maxPaseEff = pases[0]?.[1] || 100;
+  renderRankingTable('rank-pases', 'pase_eff', pases, maxPaseEff, '% Ef.');
+  renderRankingTable('rank-recup', 'recup', recup, recup[0]?.[1] || 1, 'N');
+  renderRankingTable('rank-interc', 'interc', interc, interc[0]?.[1] || 1, 'N');
+  renderRankingTable('rank-duelos', 'duel_eff', duelos, 100, '% Ef.');
+  renderRankingTable('rank-goles', 'goles', goles, goles[0]?.[1] || 1, 'N');
+  renderRankingTable('rank-perdidas', 'perdidas', perdidas, perdidas[perdidas.length-1]?.[1] || 1, 'N', true);
+}
+
+function renderAnalisis() {
+  // Team chart
+  if (teamChartInst) teamChartInst.destroy();
+
+  const partido = currentPartido;
+  let totals = { pases: 0, recup: 0, interc: 0, perdidas: 0, duelos: 0, presiones: 0, centros: 0 };
+  Object.values(DATA).forEach(v => {
+    const d = v[partido];
+    if (!d) return;
+    Object.keys(totals).forEach(k => totals[k] += d[k] || 0);
+  });
+
+  teamChartInst = new Chart(document.getElementById('teamChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Pases', 'Recuperac.', 'Interceptac.', 'Pérdidas', 'Duelos', 'Presiones', 'Centros'],
+      datasets: [{
+        data: Object.values(totals),
+        backgroundColor: ['#0099FF','#00CC6A','#33AAFF','#CC0000','#FFCC00','#FF6600','#AA00FF'],
+        borderColor: '#111',
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { color: '#888', font: { size: 11 }, padding: 12 }
+        }
+      }
+    }
+  });
+
+  // Efectividad pases
+  const players = Object.entries(DATA)
+    .filter(([k, v]) => v[partido] && v[partido].pases > 3)
+    .sort((a, b) => (b[1][partido].pase_eff || 0) - (a[1][partido].pase_eff || 0));
+
+  document.getElementById('eff-bars').innerHTML = players.map(([key, v]) => {
+    const d = v[partido];
+    const { num, name } = parseName(key);
+    const pct = d.pase_eff;
+    const color = pct >= 85 ? 'var(--verde)' : pct >= 70 ? 'var(--amarillo)' : 'var(--rojo-fuerte)';
+    return `
+      <div class="stat-row">
+        <span class="stat-row-label">${name.split(' ')[0]}</span>
+        <div class="stat-bar-bg">
+          <div class="stat-bar-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <span class="stat-row-val">${pct}%</span>
+      </div>`;
+  }).join('');
+
+  // Volumen
+  const playersByVol = Object.entries(DATA)
+    .filter(([k, v]) => v[partido] && v[partido].total > 0)
+    .sort((a, b) => (b[1][partido].total || 0) - (a[1][partido].total || 0));
+  const maxVol = playersByVol[0]?.[1][partido].total || 1;
+
+  document.getElementById('vol-bars').innerHTML = playersByVol.map(([key, v]) => {
+    const d = v[partido];
+    const { num, name } = parseName(key);
+    return `
+      <div class="stat-row">
+        <span class="stat-row-label">${name.split(' ')[0]}</span>
+        <div class="stat-bar-bg">
+          <div class="stat-bar-fill" style="width:${Math.round(d.total/maxVol*100)}%"></div>
+        </div>
+        <span class="stat-row-val">${d.total}</span>
+      </div>`;
+  }).join('');
+}
+
+// Init
+renderKPIs();
+renderPlayers();
+renderRankings();
+renderAnalisis();
+</script>
+</body>
+</html>
