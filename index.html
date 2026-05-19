@@ -379,13 +379,14 @@ function renderKPIs(){
 }
 
 function renderPlayers(){
-  const jugadoras=Object.entries(DATA).filter(([k,v])=>v[currentPartido]&&v[currentPartido].total>0);
+  const LESIONADAS=['32-Julieta Romero','11-Veronica Matarrita'];
+  const jugadoras=Object.entries(DATA).filter(([k,v])=>!LESIONADAS.includes(k)&&v[currentPartido]&&v[currentPartido].total>0);
   jugadoras.sort((a,b)=>(b[1][currentPartido].total||0)-(a[1][currentPartido].total||0));
   document.getElementById('players-grid').innerHTML=jugadoras.map(([key,partidos])=>{
     const d=partidos[currentPartido];
     const {num,name}=parseName(key);
     const isS=selectedPlayer===key;
-    const isInjured = key.includes('Romero');
+    const isInjured = key.includes('Romero') || key.includes('Matarrita');
     return`<div class="player-card ${isS?'selected':''} ${isInjured?'injured':''}" onclick="selectPlayer('${key}')">
       ${isInjured ? '<div class="injury-badge">🚑 LESIONADA</div>' : ''}
       <div class="player-num">${num}</div>
@@ -549,7 +550,8 @@ function renderRankTable(id,key,sorted,maxV,label,inv=false){
 
 function renderRankings(){
   const p=currentPartido;
-  const jug=Object.entries(DATA).filter(([k,v])=>v[p]&&v[p].total>0);
+  const LESIONADAS=['32-Julieta Romero','11-Veronica Matarrita'];
+  const jug=Object.entries(DATA).filter(([k,v])=>!LESIONADAS.includes(k)&&v[p]&&v[p].total>0);
   const sortBy=(key,asc=false)=>[...jug].sort((a,b)=>asc?(a[1][p][key]||0)-(b[1][p][key]||0):(b[1][p][key]||0)-(a[1][p][key]||0)).map(([n,v])=>[n,v[p][key]||0]);
   const pases=sortBy('pase_eff');
   renderRankTable('rank-pases','pase_eff',pases,100,'% Ef.');
@@ -756,7 +758,7 @@ function renderAnalisis(){
   });
 
   // Eff bars
-  const players=Object.entries(DATA).filter(([k,v])=>v[p]&&v[p].pases>3).sort((a,b)=>(b[1][p].pase_eff||0)-(a[1][p].pase_eff||0));
+  const players=Object.entries(DATA).filter(([k])=>!['32-Julieta Romero','11-Veronica Matarrita'].includes(k)).filter(([k,v])=>v[p]&&v[p].pases>3).sort((a,b)=>(b[1][p].pase_eff||0)-(a[1][p].pase_eff||0));
   document.getElementById('eff-bars').innerHTML=players.map(([key,v])=>{
     const d=v[p];const{name}=parseName(key);
     const color=d.pase_eff>=85?'var(--verde)':d.pase_eff>=70?'var(--naranja)':'var(--rojo-fuerte)';
@@ -764,7 +766,7 @@ function renderAnalisis(){
   }).join('');
 
   // Vol bars
-  const byVol=Object.entries(DATA).filter(([k,v])=>v[p]&&v[p].total>0).sort((a,b)=>b[1][p].total-a[1][p].total);
+  const byVol=Object.entries(DATA).filter(([k])=>!['32-Julieta Romero','11-Veronica Matarrita'].includes(k)).filter(([k,v])=>v[p]&&v[p].total>0).sort((a,b)=>b[1][p].total-a[1][p].total);
   const maxV=byVol[0]?.[1][p].total||1;
   document.getElementById('vol-bars').innerHTML=byVol.map(([key,v])=>{
     const d=v[p];const{name}=parseName(key);
@@ -788,7 +790,7 @@ function renderAnalisis(){
 
   // Balance chart
   destroyChart('balanceChart');
-  const balData=Object.entries(DATA).filter(([k,v])=>v[p]&&v[p].total>0).sort((a,b)=>(b[1][p].recup+b[1][p].interc-b[1][p].perdidas)-(a[1][p].recup+a[1][p].interc-a[1][p].perdidas));
+  const balData=Object.entries(DATA).filter(([k])=>!['32-Julieta Romero','11-Veronica Matarrita'].includes(k)).filter(([k,v])=>v[p]&&v[p].total>0).sort((a,b)=>(b[1][p].recup+b[1][p].interc-b[1][p].perdidas)-(a[1][p].recup+a[1][p].interc-a[1][p].perdidas));
   charts['balanceChart']=new Chart(document.getElementById('balanceChart'),{
     type:'bar',
     data:{labels:balData.map(([k])=>parseName(k).name.split(' ')[0]),
